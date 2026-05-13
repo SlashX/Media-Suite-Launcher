@@ -1,0 +1,532 @@
+═══════════════════════════════════════════════════════════════
+  SlashX Media Suite Launcher v4.1.1
+  Cross-platform unified launcher pentru AV + Photo Encoder Suite
+  Termux (Android) / Linux / macOS / Windows
+  Documentatie Setup & Utilizare
+═══════════════════════════════════════════════════════════════
+
+
+CUPRINS
+───────
+  1. Structura proiectului
+  2. Cerinte de sistem
+  3. Setup Termux (Android)
+  3a. Setup Linux (Debian / Ubuntu / Fedora / Arch)
+  3b. Setup macOS
+  4. Setup Windows
+  5. Structura foldere
+  6. Flux de utilizare — cum functioneaza
+  7. Optiuni meniu
+  8. CLI flags (--help / --version)
+  9. Diferente intre platforme
+ 10. Utilizare rapida (comenzi pornire)
+ 11. Comenzi rapide Termux (edit, backup, status)
+ 12. Troubleshooting
+ 13. Cross-platform bash / PowerShell
+ 14. Subprocess isolation & safety
+
+
+═══════════════════════════════════════════════════════════════
+1. STRUCTURA PROIECTULUI
+═══════════════════════════════════════════════════════════════
+
+2 fisiere de cod + 3 fisiere de documentatie:
+
+  CROSS-PLATFORM (Termux / Linux / macOS) — Bash
+  ──────────────────────────────────────────────
+  src/slashx_launcher.sh      — Master launcher bash (~350 linii)
+                                Meniu interactiv, install/update, repo status,
+                                tools/tests submenu, OS detection automata.
+
+  WINDOWS (PowerShell)
+  ────────────────────
+  src/slashx_launcher.ps1     — Master launcher PowerShell (~390 linii)
+                                Mirror complet al bash launcher-ului.
+                                Compatibil PowerShell 5.1+ si PowerShell 7+.
+
+  DOCUMENTATIE
+  ────────────
+  README.md                   — Quick start + features overview (engleza)
+  docs/launcher_info.txt      — Documentatie completa (acest fisier)
+  docs/launcher_changelog.txt — Istoric versiuni
+
+  GITIGNORED (clonate la cerere prin meniu)
+  ──────────────────────────────────────────
+  AV-Encoder-Suite/           — Suita video, clonata de [5] din meniu
+  Photo-Encoder-Suite/        — Suita foto, clonata de [5] din meniu
+
+Nota: Launcher-ul are un singur scop — sa fie punct de acces unificat la
+      cele 2 suite encoder. NU contine logica de encoding propriu-zis.
+      Toate operatiunile reale (video/photo) sunt delegate suitelor.
+
+      Variabilele BASE_DIR (bash) / $BaseDir (PS) rezolva la un nivel
+      mai sus de src/, astfel incat AV/Photo sa fie clonate ca sibling-uri
+      ale folderului src/. Asta tine launcher-ul curat din punct de vedere git.
+
+
+═══════════════════════════════════════════════════════════════
+2. CERINTE DE SISTEM
+═══════════════════════════════════════════════════════════════
+
+OBLIGATORIU:
+  - bash 4+ (Termux, Linux, macOS) sau
+    PowerShell 5.1+ / PowerShell 7+ (Windows)
+  - git (pentru optiunea [5] Install/Update)
+
+OBLIGATORIU PENTRU SUITE ACTUALE:
+  - AV-Encoder-Suite necesita: ffmpeg (vezi documentatia AV)
+  - Photo-Encoder-Suite necesita: ImageMagick 7.x (vezi documentatia Photo)
+
+OPTIONAL:
+  - bash 5+ pentru bash arrays asociative (recomandat, dar nu folosit
+    in launcher in sine)
+
+
+═══════════════════════════════════════════════════════════════
+3. SETUP TERMUX (Android)
+═══════════════════════════════════════════════════════════════
+
+Pasul 1 — Instaleaza Termux
+  - Google Play Store sau F-Droid: com.termux
+
+Pasul 2 — Permite acces la storage
+  $ termux-setup-storage
+  (accepta permisiunea)
+
+Pasul 3 — Instaleaza dependinte
+  $ pkg update -y
+  $ pkg install git bash -y
+
+Pasul 4 — Cloneaza repo-ul launcher-ului
+  $ cd /storage/emulated/0/Media/
+  $ git clone https://github.com/SlashX/Media-Suite-Launcher.git
+  $ cd Media-Suite-Launcher
+  $ chmod +x src/slashx_launcher.sh
+
+Pasul 5 — Ruleaza launcher-ul
+  $ ./src/slashx_launcher.sh
+
+Pasul 6 — Din meniu, instaleaza AV si Photo:
+  - Apasa [5] Install / Update Suite (Git)
+  - Cele doua suite vor fi clonate ca foldere sibling cu src/.
+
+Pasul 7 — Folosesti suite-le:
+  - Apasa [1] pentru AV-Encoder-Suite
+  - Apasa [2] pentru Photo-Encoder-Suite
+
+
+═══════════════════════════════════════════════════════════════
+3a. SETUP LINUX (Debian / Ubuntu / Fedora / Arch)
+═══════════════════════════════════════════════════════════════
+
+Pasul 1 — Instaleaza dependintele
+
+  Debian / Ubuntu:
+    sudo apt install bash git
+
+  Fedora:
+    sudo dnf install bash git
+
+  Arch:
+    sudo pacman -S bash git
+
+Pasul 2 — Cloneaza repo-ul launcher-ului
+  $ git clone https://github.com/SlashX/Media-Suite-Launcher.git
+  $ cd Media-Suite-Launcher
+  $ chmod +x src/slashx_launcher.sh
+
+Pasul 3 — Ruleaza
+  $ ./src/slashx_launcher.sh
+  La pornire, scriptul afiseaza banner cu OS detectat
+  (ex: "Host OS : Linux") si intra direct in meniu.
+
+Pasul 4 — Apasa [5] pentru a instala AV + Photo
+
+
+═══════════════════════════════════════════════════════════════
+3b. SETUP macOS
+═══════════════════════════════════════════════════════════════
+
+Pasul 1 — Instaleaza Homebrew (daca nu il ai)
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+Pasul 2 — IMPORTANT: bash 4+ (Apple ofera bash 3.2 default!)
+  $ brew install bash git
+
+Pasul 3 — Cloneaza launcher-ul
+  $ git clone https://github.com/SlashX/Media-Suite-Launcher.git
+  $ cd Media-Suite-Launcher
+  $ chmod +x src/slashx_launcher.sh
+
+Pasul 4 — Ruleaza
+  $ ./src/slashx_launcher.sh
+  Banner-ul OS arata "Host OS : macOS"
+
+Nota: Pe macOS Apple Silicon (M1/M2/M3+) brew instaleaza in /opt/homebrew/.
+      Pe Intel Mac instaleaza in /usr/local/. Shebang-ul "#!/usr/bin/env bash"
+      gaseste automat bash-ul de la brew prin PATH.
+
+
+═══════════════════════════════════════════════════════════════
+4. SETUP WINDOWS
+═══════════════════════════════════════════════════════════════
+
+Pasul 1 — Instaleaza Git
+  Optiunea A: winget install Git.Git
+  Optiunea B: Download de pe https://git-scm.com
+
+Pasul 2 — PowerShell e deja instalat (5.1 in Windows 10/11)
+  Optional: PowerShell 7+ (recomandat) — winget install Microsoft.PowerShell
+
+Pasul 3 — Permite executia scripturilor PS1 (ruleaza o data)
+  > Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+
+Pasul 4 — Cloneaza launcher-ul
+  > git clone https://github.com/SlashX/Media-Suite-Launcher.git
+  > cd Media-Suite-Launcher
+
+Pasul 5 — Ruleaza launcher-ul
+  > .\src\slashx_launcher.ps1
+
+  Daca primesti eroare de policy, ruleaza:
+  > powershell -NoProfile -ExecutionPolicy Bypass -File .\src\slashx_launcher.ps1
+
+Pasul 6 — Apasa [5] pentru a instala AV + Photo
+
+
+═══════════════════════════════════════════════════════════════
+5. STRUCTURA FOLDERE
+═══════════════════════════════════════════════════════════════
+
+Termux (S24 Ultra), Linux, macOS, Windows — aceeasi structura:
+
+  Media-Suite-Launcher/
+  ├── src/
+  │   ├── slashx_launcher.sh        ← bash launcher (Termux/Linux/macOS)
+  │   └── slashx_launcher.ps1       ← PowerShell launcher (Windows)
+  ├── docs/
+  │   ├── launcher_info.txt         ← documentatie (acest fisier)
+  │   └── launcher_changelog.txt    ← istoric versiuni
+  ├── AV-Encoder-Suite/             ← clonat de [5], gitignored
+  ├── Photo-Encoder-Suite/          ← clonat de [5], gitignored
+  ├── .gitignore
+  ├── README.md
+  └── LICENSE
+
+
+═══════════════════════════════════════════════════════════════
+6. FLUX DE UTILIZARE — CUM FUNCTIONEAZA
+═══════════════════════════════════════════════════════════════
+
+  1. Lansezi launcher-ul (./src/slashx_launcher.sh sau .\src\slashx_launcher.ps1)
+  2. Vezi meniul cu 7 optiuni (1-6 + 0)
+  3. Pentru prima utilizare, apesi [5] Install / Update Suite (Git)
+     → Launcher-ul cloneaza AV-Encoder-Suite si Photo-Encoder-Suite
+       ca foldere sibling cu src/
+  4. Apoi:
+     - [1] sau [2] → ruleaza launcher-ul suite-ului (intra in meniul AV/Photo)
+     - [3] sau [4] → submeniu cu toate scripturile din tools/ sau tests/
+                     ale ambelor suite (mapped, etichetate [AV] / [Photo])
+     - [5] → re-cloneaza/update suite-le (git pull --ff-only)
+     - [6] → status repo (branch, ultim commit, modificari locale, ahead/behind)
+  5. Iesire: [0] sau Ctrl+C (trap-ul prinde semnalul si iese curat)
+
+
+═══════════════════════════════════════════════════════════════
+7. OPTIUNI MENIU
+═══════════════════════════════════════════════════════════════
+
+OPTIUNI PRINCIPALE:
+  [1] Video Processing (AV-Encoder-Suite)
+      → Lanseaza av_launcher.sh / av_launcher.ps1 din AV-Encoder-Suite
+
+  [2] Photo Processing (Photo-Encoder-Suite)
+      → Lanseaza photo_launcher.sh / photo_encoder.ps1
+
+  [3] Tools & Updaters (Mapped)
+      → Submeniu agregat cu toate scripturile *.sh sau *.ps1 din:
+        AV-Encoder-Suite/tools/
+        Photo-Encoder-Suite/tools/
+      → Etichetate [AV] sau [Photo] pentru claritate.
+
+  [4] Tests & Diagnostics (Mapped)
+      → Submeniu agregat cu toate scripturile *.sh sau *.ps1 din:
+        AV-Encoder-Suite/tests/
+        Photo-Encoder-Suite/tests/
+
+  [5] Install / Update Suite (Git)
+      → Daca repo-ul nu exista local: git clone
+      → Daca exista: git pull --ff-only (fast-forward only,
+        NU face merge automat daca ai commits locale)
+      → Eroarea de pull e raportata clar (conflict / retea / etc.)
+
+  [6] Repo Status
+      → Pentru fiecare suita afiseaza:
+        - Branch curent
+        - Ultim commit (hash + mesaj + timp relativ)
+        - Numar de fisiere modificate local
+        - Commits ahead/behind fata de remote (dupa fetch silent)
+
+  [0] Exit
+      → Iesire curata cu mesaj de bun ramas
+
+
+═══════════════════════════════════════════════════════════════
+8. CLI FLAGS
+═══════════════════════════════════════════════════════════════
+
+Launcher-ul are 2 flags pentru utilizare non-interactiva:
+
+  --help, -h, help     Afiseaza help text si iese
+  --version, -v, version  Afiseaza versiunea si iese
+
+Exemple:
+  $ ./src/slashx_launcher.sh --help
+  $ ./src/slashx_launcher.sh -v
+  > .\src\slashx_launcher.ps1 -Help
+  > .\src\slashx_launcher.ps1 -Version
+
+Argumente necunoscute → exit 2 cu mesaj de eroare:
+  $ ./src/slashx_launcher.sh --bogus
+  Argument necunoscut: --bogus
+  Foloseste --help pentru ajutor.
+
+
+ENVIRONMENT VARIABLES:
+  SLASHX_DEBUG=1       Activeaza logare verbose
+                       (afisaj "Debug : ON" in banner + log invocari subscript)
+
+Exemple:
+  $ SLASHX_DEBUG=1 ./src/slashx_launcher.sh
+  > $env:SLASHX_DEBUG = '1'; .\src\slashx_launcher.ps1
+
+
+═══════════════════════════════════════════════════════════════
+9. DIFERENTE INTRE PLATFORME
+═══════════════════════════════════════════════════════════════
+
+Functionalitatea principala e identica pe ambele variante (sh/ps1).
+Mici diferente sunt in detalii UX si platform-API.
+
+Feature                          slashx_launcher.sh   slashx_launcher.ps1
+──────────────────────────────── ──────────────────── ────────────────────
+Meniu interactiv (1-6, 0)        ✓                    ✓
+[5] git clone/pull               ✓                    ✓
+[6] Repo Status                  ✓                    ✓
+Tools/Tests mapped submenu       ✓ (cauta *.sh)      ✓ (cauta *.ps1)
+Subprocess isolation             ✓ (subshell)         ✓ (Invoke-IsolatedScript)
+SIGINT handling (Ctrl+C)         ✓ (trap)             ✓ (try/finally)
+ANSI suppression in pipe         ✓                    n/a (Write-Host fara pipe)
+UTF-8 console forcing             n/a                  ✓ ([Console]::OutputEncoding)
+--help / --version               ✓                    ✓
+SLASHX_DEBUG=1                   ✓                    ✓
+OS detection                     Termux/Linux/macOS/  Windows/Linux/macOS
+                                 Windows (Git Bash)   (PowerShell 7+)
+
+Nota: Launcher-ul bash poate rula si pe Windows daca e folosit Git Bash sau
+      MSYS2/Cygwin (uname returns MINGW*/MSYS*/CYGWIN*). Recomandam totusi
+      varianta PowerShell pentru Windows native.
+
+
+═══════════════════════════════════════════════════════════════
+10. UTILIZARE RAPIDA (COMENZI PORNIRE)
+═══════════════════════════════════════════════════════════════
+
+Cea mai simpla utilizare (Termux/Linux/macOS):
+  cd Media-Suite-Launcher
+  ./src/slashx_launcher.sh
+
+Windows:
+  cd Media-Suite-Launcher
+  .\src\slashx_launcher.ps1
+
+Cu debug:
+  SLASHX_DEBUG=1 ./src/slashx_launcher.sh
+
+Verifica versiunea:
+  ./src/slashx_launcher.sh --version
+
+Help complet:
+  ./src/slashx_launcher.sh --help
+
+Pe Windows fara modificare ExecutionPolicy:
+  powershell -NoProfile -ExecutionPolicy Bypass -File .\src\slashx_launcher.ps1
+
+
+═══════════════════════════════════════════════════════════════
+11. COMENZI RAPIDE TERMUX (edit, backup, status)
+═══════════════════════════════════════════════════════════════
+
+Editeaza launcher-ul:
+  nano src/slashx_launcher.sh
+
+Backup:
+  cd /storage/emulated/0/Media/
+  tar czf ~/launcher_backup.tar.gz Media-Suite-Launcher/
+
+Verifica versiune git pe toate 3 repo-urile:
+  cd Media-Suite-Launcher
+  git -C . log -1 --oneline
+  git -C AV-Encoder-Suite log -1 --oneline 2>/dev/null
+  git -C Photo-Encoder-Suite log -1 --oneline 2>/dev/null
+  (sau folosesti optiunea [6] Repo Status din meniu)
+
+Update doar launcher-ul:
+  cd Media-Suite-Launcher
+  git pull --ff-only
+
+Update tot (launcher + AV + Photo):
+  cd Media-Suite-Launcher
+  git pull --ff-only
+  ./src/slashx_launcher.sh
+  → apoi [5] din meniu
+
+
+═══════════════════════════════════════════════════════════════
+12. TROUBLESHOOTING
+═══════════════════════════════════════════════════════════════
+
+1. "Permission denied" la rulare .sh
+   → chmod +x src/slashx_launcher.sh
+
+2. "git: command not found"
+   → Termux:  pkg install git -y
+   → Debian:  sudo apt install git
+   → macOS:   brew install git
+   → Windows: winget install Git.Git
+
+3. PS1 blocat de ExecutionPolicy
+   → Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+   → Sau: powershell -NoProfile -ExecutionPolicy Bypass -File .\src\slashx_launcher.ps1
+
+4. "bash: bad substitution" pe macOS
+   → Apple are bash 3.2 default. Instaleaza bash 4+:
+     brew install bash
+
+5. Box-drawing chars sau diacritice corupte pe Windows CMD
+   → PS1 forteaza UTF-8 console automat. Daca tot vezi mizerie,
+     foloseste PowerShell (NU cmd.exe) si verifica:
+     [Console]::OutputEncoding
+
+6. "[!] Update esuat — conflict local sau retea"
+   → Ai modificari locale necommit-uite intr-unul din repos.
+   → Verifica: git -C AV-Encoder-Suite status
+   → Solutie: commit, stash sau revert modificarile
+
+7. Submeniul Tools/Tests apare gol
+   → Pe bash, cauta *.sh. Pe PS, cauta *.ps1.
+   → Daca esti pe Windows si suite-le sunt clonate, foloseste .ps1
+   → Daca esti pe Linux si nu vezi tool-urile PS1, foloseste .sh
+
+8. Ctrl+C pare ca lasa terminalul ciudat
+   → Acum trap-ul (bash) si try/finally (PS) curata corect.
+   → Daca vezi probleme, ruleaza: stty sane (Linux/macOS)
+
+9. SCRIPT_DIR rezolva gresit cand launcher e symlinkuit
+   → BASE_DIR e calculat cu (cd ... && pwd) care urmareste symlink-ul.
+   → E intentional — daca ai symlinkat src/, BASE_DIR e parintele real.
+
+10. Vreau sa reinstalez complet
+    → Sterge AV-Encoder-Suite/ si Photo-Encoder-Suite/ (sunt gitignored,
+      pierderi 0 din launcher repo)
+    → Apoi [5] din meniu cloneaza din nou
+
+
+═══════════════════════════════════════════════════════════════
+13. CROSS-PLATFORM BASH / POWERSHELL
+═══════════════════════════════════════════════════════════════
+
+Cele 2 launchere ruleaza nativ pe toate platformele lor tinta dintr-un
+singur codebase per varianta. NU exista un strat de compat (cum e
+photo_common.sh in Photo) pentru ca surface area e mic — totul fits in
+~350 linii fiecare.
+
+DETECT PLATFORM (BASH)
+  if [[ "$PREFIX" == *"/com.termux/"* ]]: Termux
+  case "$(uname -s)":
+    Darwin     -> macOS
+    Linux      -> Linux
+    MINGW*     -> Windows (Git Bash)
+    MSYS*      -> Windows (MSYS2)
+    CYGWIN*    -> Windows (Cygwin)
+    *          -> Unknown OS
+
+DETECT PLATFORM (POWERSHELL)
+  $IsWindows / $IsLinux / $IsMacOS  → built-in pe PS6+
+  Pe PS5.1 (doar Windows), $IsWindows nu exista — fallback la
+  $PSVersionTable.PSVersion.Major -le 5
+
+PATH RESOLUTION (BASH)
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+  BASE_DIR="$(cd "$SCRIPT_DIR/.." >/dev/null 2>&1 && pwd)"
+
+  Pattern asta urmareste symlink-uri (cd... && pwd returneaza calea reala).
+
+PATH RESOLUTION (POWERSHELL)
+  $ScriptDir = $PSScriptRoot   (sau MyInvocation fallback pentru dot-source)
+  $BaseDir = (Resolve-Path (Join-Path $ScriptDir '..')).Path
+
+  Resolve-Path normalizeaza '..' corect cross-platform.
+
+ANSI CODES SUPPRESSION (DOAR BASH)
+  if [ -t 1 ]; then CYAN=...; else CYAN=''; fi
+  clear_screen() { if [ -t 1 ]; then clear 2>/dev/null || true; fi }
+
+  Pe PowerShell, Write-Host nu trece prin pipe-ul standard, deci
+  nu e nevoie de TTY check.
+
+UTF-8 CONSOLE (DOAR PS)
+  [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+  $OutputEncoding = [System.Text.Encoding]::UTF8 (pe PS6+)
+
+  Necesar pentru a evita corupere box-drawing chars (─, ║, ╗, etc.)
+  pe Windows CMD vechi sau PowerShell cu codepage default 1252.
+
+
+═══════════════════════════════════════════════════════════════
+14. SUBPROCESS ISOLATION & SAFETY
+═══════════════════════════════════════════════════════════════
+
+Cea mai importanta caracteristica de robustness a launcher-ului e
+izolarea sub-scripturilor. Cand alegi optiunea [1], [2], [3] sau [4]
+si launcher-ul ruleaza un script copil (av_launcher.sh, photo_encoder.ps1,
+un tool, etc.), acel script e izolat:
+
+BASH — SUBSHELL ISOLATION
+  (
+      cd "$BASE_DIR/$root" || exit 1
+      bash "$target"
+  )
+
+  Parantezele creeaza un subshell. Tot ce face script-ul copil:
+  - cd        → schimba CWD doar in subshell, parintele ramane neatins
+  - export X  → nu pollueaza environment-ul launcher-ului
+  - exit 42   → iese doar din subshell, launcher-ul continua
+  - source ...→ idem, doar in subshell
+
+  In versiunea originala (Gemini-generated), apelul era direct fara subshell:
+  cd ...; bash ...; cd $SCRIPT_DIR
+  → Daca script-ul facea exit, omora launcher-ul.
+  → Daca cd la final esua, ramai in directory-ul gresit.
+
+POWERSHELL — Invoke-IsolatedScript
+  & $psExe -NoProfile -ExecutionPolicy Bypass -File $ScriptPath
+
+  Aici lansam un proces NOU (-NoProfile evita incarcarea profilului
+  user-ului care poate cauza side-effects). Launcher-ul asteapta
+  rezultatul ($LASTEXITCODE) dar e protejat 100% de ce face script-ul
+  copil — chiar si exit, fac stare globala, etc.
+
+  CWD restoration:
+  try   { Set-Location $WorkingDir; & $psExe ... }
+  finally { Set-Location $oldLocation }
+
+SIGINT (Ctrl+C) HANDLING
+  Bash: trap _on_interrupt INT TERM
+        _on_interrupt() afiseaza mesaj curat, exit 130
+
+  PowerShell: try { while ($true) {...} } finally { cleanup }
+              Ctrl+C in Read-Host cauzeaza terminator → finally ruleaza
+
+
+═══════════════════════════════════════════════════════════════

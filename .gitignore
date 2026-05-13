@@ -1,0 +1,25 @@
+# Suite clonate din meniu (apartin propriilor repo-uri)
+AV-Encoder-Suite/
+Photo-Encoder-Suite/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
+# Logs / temp
+*.log
+*.tmp
+.bash_history
+
+# Backup-uri locale
+*.bak
+*_backup.tar.gz
+
+# Claude Code
+CLAUDE.md
+.claude/

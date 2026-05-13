@@ -1,0 +1,121 @@
+═══════════════════════════════════════════════════════════════
+  SlashX Media Suite Launcher — Changelog
+═══════════════════════════════════════════════════════════════
+
+
+v4.1.1 — Initial public release (2026-05-10)
+────────────────────────────────────────────
+
+Cross-platform unified launcher pentru AV-Encoder-Suite si
+Photo-Encoder-Suite. Bash (Termux/Linux/macOS) + PowerShell
+(Windows). Punct unic de acces la ambele suite encoder.
+
+ADD
+  - src/slashx_launcher.sh — bash launcher (~350 linii) pentru
+    Termux, Linux, macOS si Windows (Git Bash / MSYS2 / Cygwin)
+  - src/slashx_launcher.ps1 — PowerShell launcher (~390 linii)
+    pentru Windows (PS 5.1+) si PowerShell 7+ cross-platform
+  - Meniu interactiv cu 6 optiuni:
+    [1] Video Processing (AV-Encoder-Suite)
+    [2] Photo Processing (Photo-Encoder-Suite)
+    [3] Tools & Updaters (Mapped) — submeniu agregat
+    [4] Tests & Diagnostics (Mapped) — submeniu agregat
+    [5] Install / Update Suite (Git) — clone sau pull --ff-only
+    [6] Repo Status — branch, ultim commit, modificari, ahead/behind
+    [0] Exit
+  - CLI flags --help / -h / help si --version / -v / version
+  - SLASHX_DEBUG=1 environment variable pentru log verbose
+  - OS detection automata: Termux (via /data/data/com.termux),
+    macOS, Linux, Windows (MINGW/MSYS/CYGWIN)
+  - SIGINT/SIGTERM trap (bash) + try/finally main loop (PS)
+    pentru iesire curata pe Ctrl+C
+  - Subprocess isolation:
+    bash: subshell ( cd ... ; bash $script )
+    PS:   pwsh -NoProfile -ExecutionPolicy Bypass -File $script
+    Sub-scripturile NU pot omori launcher-ul prin exit / cd / env.
+  - ANSI escape codes auto-suprimate cand stdout nu e TTY (pipe-safe)
+  - PowerShell: UTF-8 console encoding fortat
+    ([Console]::OutputEncoding = UTF8) — rezolva box-drawing chars
+    si diacritice corupte pe CMD si PowerShell vechi
+  - BASE_DIR / $BaseDir — repo-urile AV/Photo se cloneaza un nivel
+    mai sus de src/ (sibling-uri), keeping launcher repo curat
+  - clear_screen() wrapper TTY-safe — emit escape codes doar in TTY
+  - Input validation pe meniu cu regex ^[0-9]+$ + range check
+  - git pull --ff-only — refuza merge daca utilizatorul are commits
+    locale necommit-uite, raporteaza eroarea clar
+  - Repo status [6] foloseste fetch silent + rev-list pentru
+    ahead/behind tracking
+  - docs/launcher_info.txt — documentatie completa setup & utilizare
+  - docs/launcher_changelog.txt — acest fisier
+  - README.md — quick start cross-platform
+
+UPDATE
+  - SUITE_VERSION (bash) / $SuiteVersion (PS) extras in variabila
+    centrala pentru a centraliza source of truth-ul versiunii
+  - Mesaje uniforme RO (UI) + EN (cod), fara diacritice in launcher
+    pentru a evita corupere CMD/CP-1252; diacriticele ramanand doar
+    in documentatie
+
+SYNC
+  - Toate functionalitatile bash sunt mirror-uite 1:1 in PS1
+  - Functii PS folosesc verbe aprobate Microsoft Get-Verb:
+    Sync-SlashxRepo, Invoke-GitRepos, Show-RepoStatus, Show-MappedMenu,
+    Invoke-MainLauncher, Invoke-IsolatedScript, Get-PowerShellExe,
+    Get-HostOS, Wait-ForEnter, Write-Dbg
+
+FIX (heritage din audit pre-release)
+  - Path mangling cu spatii: bash "$target_file" direct (nu prin
+    pattern de prefix-removal expansiv care esueaza la spatii)
+  - "cd ... || exit" doar in subshell (nu mai poate iesi din launcher)
+  - PS sub-scripturi rulate in proces izolat (nu in runspace-ul
+    launcher-ului) — exit/cd/env din copil nu mai contamineaza
+  - Detectare Windows in bash (MINGW*/MSYS*/CYGWIN* pe uname -s)
+  - Bash version guard la start (refuza sh/dash, avertizeaza pe bash 3)
+  - Set-StrictMode -Version Latest in PowerShell
+  - PSScriptRoot cu fallback MyInvocation pentru dot-source compat
+  - clear_screen folosit if-then-else explicit, nu A && B || C
+    (pattern care nu e if-then-else corect daca B esueaza)
+  - SC2015 si toate warning-urile shellcheck rezolvate (0 warnings
+    la nivel default si style)
+
+
+═══════════════════════════════════════════════════════════════
+NOTE EDITORIALE
+═══════════════════════════════════════════════════════════════
+
+Launcher-ul a trecut printr-un audit complet inainte de release-ul
+public, cu testare empirica pe 7 tier-uri (30+ verificari):
+  - Tier 1: Static analysis (shellcheck default + style + info + all)
+  - Tier 2: Behavioral fixes (5 bug-uri identificate si corectate)
+  - Tier 3: Stress tests (path cu spatii, caractere speciale,
+            subscript exit, CWD/env izolare, input validation 13 cazuri)
+  - Tier 4: Edge cases (--help variants, symlink invocation,
+            env pollution, version centralization)
+  - Tier 5: PowerShell static (10 checks: brace balance, verb-uri
+            aprobate, [int] casts pre-validate, StrictMode, UTF-8)
+  - Tier 6: Anti-regression (toate fix-urile re-verificate)
+  - Tier 7: Post-fix verifications (try/finally, Clear-Host
+            consistency, path quoting cross-platform)
+
+Verdict final: PRODUCTION READY, ZERO bug-uri detectate.
+
+
+═══════════════════════════════════════════════════════════════
+CONVENTII CHANGELOG
+═══════════════════════════════════════════════════════════════
+
+Categorii (in ordinea importantei):
+  ADD       — feature nou
+  UPDATE    — modificare comportament existent
+  SYNC      — paritate intre bash si PS1
+  FIX       — bug fix
+  BREAKING  — schimbare incompatibila cu versiunea anterioara
+
+Versionare semver:
+  vMAJOR.MINOR.PATCH
+  - PATCH bumpat pe FIX-uri si UPDATE-uri minore
+  - MINOR bumpat pe ADD (feature nou)
+  - MAJOR bumpat pe BREAKING (schimbare incompatibila)
+
+
+═══════════════════════════════════════════════════════════════
